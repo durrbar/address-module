@@ -14,6 +14,6 @@ use Modules\Address\Http\Controllers\AddressController;
  *
 */
 
-Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
+Route::middleware(['auth:sanctum'])->prefix('v1/user')->group(function () {
     Route::apiResource('address', AddressController::class)->names('address');
 });

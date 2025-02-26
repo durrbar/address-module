@@ -14,6 +14,6 @@ use Modules\Address\Http\Controllers\AddressController;
 |
 */
 
-Route::group([], function () {
-    Route::resource('address', AddressController::class)->names('address');
-});
+// Route::group([], function () {
+//     Route::resource('address', AddressController::class)->names('address');
+// });
