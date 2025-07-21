@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Address\Http\Controllers\AddressController;
+use Modules\Role\Enums\Permission;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +18,14 @@ use Modules\Address\Http\Controllers\AddressController;
 // Route::group([], function () {
 //     Route::resource('address', AddressController::class)->names('address');
 // });
+
+/**
+ * ******************************************
+ * Authorized Route for Customers only
+ * ******************************************
+ */
+Route::group(['middleware' => ['can:'.Permission::CUSTOMER, 'auth:sanctum', 'email.verified']], function (): void {
+    Route::apiResource('address', AddressController::class, [
+        'only' => ['destroy'],
+    ]);
+});

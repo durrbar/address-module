@@ -2,95 +2,105 @@
 
 namespace Modules\Address\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Modules\Address\Http\Requests\AddressRequest;
 use Modules\Address\Models\Address;
-use Modules\Address\Resources\AddressResource;
+use Modules\Address\Repositories\AddressRepository;
+use Modules\Core\Exceptions\DurrbarException;
+use Modules\Core\Http\Controllers\CoreController;
+use Modules\Ecommerce\Http\Requests\AddressRequest;
+use Modules\Role\Enums\Permission;
+use Prettus\Validator\Exceptions\ValidatorException;
 
-class AddressController extends Controller
+class AddressController extends CoreController
 {
-    use AuthorizesRequests;
+    public $repository;
+
+    public function __construct(AddressRepository $repository)
+    {
+        $this->repository = $repository;
+    }
 
     /**
      * Display a listing of the resource.
+     *
+     * @return Collection|Address[]
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
-        $user = $request->user();
-        $addresses = $user->addresses;
-
-        return response()->json([
-            'message' => 'Success',
-            'addresses' => AddressResource::collection($addresses),
-        ], Response::HTTP_OK);
+        return $this->repository->with('customer')->all();
     }
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @return mixed
+     *
+     * @throws ValidatorException
      */
-    public function store(AddressRequest $request): JsonResponse
+    public function store(AddressRequest $request)
     {
-        $user = $request->user();
+        try {
+            $validatedData = $request->all();
 
-        // Authorize the user to create an address
-        $this->authorize('create', Address::class);
-
-        // Create the address using validated data
-        $address = $user->addresses()->create($request->validated());
-
-        return response()->json([
-            'message' => 'Address created successfully',
-            'address' => new AddressResource($address),
-        ], Response::HTTP_CREATED);
+            return $this->repository->create($validatedData);
+        } catch (DurrbarException $e) {
+            throw new DurrbarException(COULD_NOT_CREATE_THE_RESOURCE);
+        }
     }
 
     /**
-     * Show the specified resource.
+     * Display the specified resource.
+     *
+     * @return JsonResponse
      */
-    public function show(Address $address): JsonResponse
+    public function show($id)
     {
-        // Authorize the user to view the address
-        $this->authorize('view', $address);
-
-        return response()->json([
-            'message' => 'Success',
-            'address' => new AddressResource($address),
-        ], Response::HTTP_OK);
+        try {
+            return $this->repository->with('customer')->findOrFail($id);
+        } catch (DurrbarException $e) {
+            throw new DurrbarException(NOT_FOUND);
+        }
     }
 
     /**
      * Update the specified resource in storage.
+     *
+     * @param  int  $id
+     * @return JsonResponse
      */
-    public function update(AddressRequest $request, Address $address): JsonResponse
+    public function update(AddressRequest $request, $id)
     {
-        // Authorize the user to update the address
-        $this->authorize('update', $address);
+        try {
+            $validatedData = $request->all();
 
-        // Update the address using validated data
-        $address->update($request->validated());
-
-        return response()->json([
-            'message' => 'Address updated successfully',
-            'address' => new AddressResource($address),
-        ], Response::HTTP_OK);
+            return $this->repository->findOrFail($id)->update($validatedData);
+        } catch (DurrbarException $e) {
+            throw new DurrbarException(COULD_NOT_UPDATE_THE_RESOURCE);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return JsonResponse
      */
-    public function destroy(Address $address): JsonResponse
+    public function destroy($id, Request $request)
     {
-        // Authorize the user to delete the address
-        $this->authorize('delete', $address);
-
-        $address->delete();
-
-        return response()->json([
-            'message' => 'Address deleted successfully',
-        ], Response::HTTP_OK);
+        try {
+            $user = $request->user();
+            if ($user && $user->hasPermissionTo(Permission::SUPER_ADMIN)) {
+                return $this->repository->findOrFail($id)->delete();
+            } else {
+                $address = $this->repository->findOrFail($id);
+                if ($address->customer_id == $user->id) {
+                    return $address->delete();
+                }
+            }
+        } catch (DurrbarException $e) {
+            throw new DurrbarException(NOT_FOUND);
+        }
     }
 }

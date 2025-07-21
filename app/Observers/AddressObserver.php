@@ -69,20 +69,17 @@ class AddressObserver
 
     /**
      * Ensures that only one primary address exists for the same creator (user).
-     *
-     * @param  Address  $address
-     * @return void
      */
     protected function ensureOnlyOnePrimary(Address $address): void
     {
         // Ensure the address has a valid creator
-        if (!$address->created_by) {
+        if (! $address->created_by) {
             return; // Skip if no creator is associated
         }
 
         // If the address is marked as primary, reset all other primary addresses
         if ($address->primary) {
-            DB::transaction(function () use ($address) {
+            DB::transaction(function () use ($address): void {
                 Address::where('created_by', $address->created_by)
                     ->where('primary', true)
                     ->where('id', '!=', $address->id) // Exclude the current address
