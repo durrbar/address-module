@@ -7,9 +7,11 @@ namespace Modules\Address\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Address\Observers\AddressObserver;
 use Modules\User\Models\User;
@@ -44,7 +46,7 @@ class AddressOld extends Model
     /**
      * Relationship to the user who created the address.
      */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
@@ -53,7 +55,7 @@ class AddressOld extends Model
      * Scope to filter primary addresses.
      */
     #[Scope]
-    public function primary($query)
+    public function primary(Builder $query): Builder
     {
         return $query->where('primary', true);
     }
@@ -62,7 +64,7 @@ class AddressOld extends Model
      * Scope to filter by address category (e.g., home, office).
      */
     #[Scope]
-    public function ofType($query, $addressType)
+    public function ofType(Builder $query, string $addressType): Builder
     {
         return $query->where('address_type', $addressType);
     }
