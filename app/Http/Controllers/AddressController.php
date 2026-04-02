@@ -91,7 +91,7 @@ class AddressController extends CoreController
     {
         try {
             $user = $request->user();
-            if ($user && $user->hasPermissionTo(Permission::SUPER_ADMIN)) {
+            if ($user && $user->hasPermissionTo(Permission::SuperAdmin->value)) {
                 return $this->repository->findOrFail($id)->delete();
             } else {
                 $address = $this->repository->findOrFail($id);
