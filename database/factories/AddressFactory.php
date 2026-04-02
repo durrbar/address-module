@@ -1,22 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Address\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
+use Modules\Address\Models\Address;
 use Modules\User\Models\User;
 
 class AddressFactory extends Factory
 {
-    protected $model = \Modules\Address\Models\Address::class;
+    protected $model = Address::class;
 
     public function definition()
-    {        
+    {
         return [
             'id' => Str::uuid(),
             'title' => $this->faker->randomElement(['Billing', 'Shipping']),
             'type' => function (array $attributes) {
-                return strtolower($attributes['title']);
+                return mb_strtolower($attributes['title']);
             },
             'default' => 0,
             'address' => json_encode([

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Address\Repositories;
 
 use Modules\Address\Models\Address;

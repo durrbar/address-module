@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Address\Http\Controllers;
 
 use Illuminate\Database\Eloquent\Collection;
@@ -93,12 +95,12 @@ class AddressController extends CoreController
             $user = $request->user();
             if ($user && $user->hasPermissionTo(Permission::SuperAdmin->value)) {
                 return $this->repository->findOrFail($id)->delete();
-            } else {
-                $address = $this->repository->findOrFail($id);
-                if ($address->customer_id == $user->id) {
-                    return $address->delete();
-                }
             }
+            $address = $this->repository->findOrFail($id);
+            if ($address->customer_id === $user->id) {
+                return $address->delete();
+            }
+
         } catch (DurrbarException $e) {
             throw new DurrbarException(NOT_FOUND);
         }

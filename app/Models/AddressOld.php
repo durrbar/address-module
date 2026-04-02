@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Address\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,28 +17,24 @@ use Modules\User\Models\User;
 // use Modules\Address\Database\Factories\AddressFactory;
 
 #[ObservedBy([AddressObserver::class])]
+#[Fillable([
+    'name',
+    'email',
+    'phone',
+    'country',
+    'state',
+    'city',
+    'zip_code',
+    'address',
+    'primary',
+    'address_type',
+    'created_by',
+])]
 class AddressOld extends Model
 {
     use HasFactory;
     use HasUuids;
     use SoftDeletes;
-
-    /**
-     * The attributes that are mass assignable.
-     */
-    protected $fillable = [
-        'name',
-        'email',
-        'phone',
-        'country',
-        'state',
-        'city',
-        'zip_code',
-        'address',
-        'primary',
-        'address_type',
-        'created_by',
-    ];
 
     // protected static function newFactory(): AddressFactory
     // {
@@ -52,7 +52,8 @@ class AddressOld extends Model
     /**
      * Scope to filter primary addresses.
      */
-    public function scopePrimary($query)
+    #[Scope]
+    public function primary($query)
     {
         return $query->where('primary', true);
     }
@@ -60,7 +61,8 @@ class AddressOld extends Model
     /**
      * Scope to filter by address category (e.g., home, office).
      */
-    public function scopeOfType($query, $addressType)
+    #[Scope]
+    public function ofType($query, $addressType)
     {
         return $query->where('address_type', $addressType);
     }

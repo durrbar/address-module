@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Address\Observers;
 
 use Illuminate\Support\Facades\DB;
@@ -70,7 +72,7 @@ class AddressObserver
     /**
      * Ensures that only one primary address exists for the same creator (user).
      */
-    protected function ensureOnlyOnePrimary(Address $address): void
+    private function ensureOnlyOnePrimary(Address $address): void
     {
         // Ensure the address has a valid creator
         if (! $address->created_by) {

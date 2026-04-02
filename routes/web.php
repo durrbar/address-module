@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Route;
 use Modules\Address\Http\Controllers\AddressController;
 use Modules\Role\Enums\Permission;
