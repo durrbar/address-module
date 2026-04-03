@@ -17,12 +17,7 @@ use Prettus\Validator\Exceptions\ValidatorException;
 
 class AddressController extends CoreController
 {
-    public $repository;
-
-    public function __construct(AddressRepository $repository)
-    {
-        $this->repository = $repository;
-    }
+    public function __construct(public AddressRepository $repository) {}
 
     /**
      * Display a listing of the resource.
