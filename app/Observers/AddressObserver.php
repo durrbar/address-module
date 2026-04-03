@@ -12,7 +12,6 @@ class AddressObserver
     /**
      * Handle the Address "creating" event.
      *
-     * @return void
      */
     public function creating(Address $address)
     {
@@ -30,7 +29,6 @@ class AddressObserver
     /**
      * Handle the Address "updating" event.
      *
-     * @return void
      */
     public function updating(Address $address)
     {
